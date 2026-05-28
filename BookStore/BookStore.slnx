@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="BookStore.Books/BookStore.Books.csproj" Id="d361eab4-78ac-41cc-bac3-1497091012a5" />
+  <Project Path="BookStore.Cart/BookStore.Cart.csproj" Id="5dda7f35-0c16-4489-b0b2-42182284e7dd" />
   <Project Path="BookStore.Order/BookStore.Order.csproj" />
   <Project Path="BookStore.Payment/BookStore.Payment.csproj" Id="672454da-6d91-48bc-b795-80e274b74301" />
   <Project Path="BookStore.Users/BookStore.Users.csproj" Id="5d24bda2-d731-4493-bff0-992a0d26b1e1" />

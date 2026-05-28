@@ -20,7 +20,7 @@ namespace BookStore.Order.Controllers
 
 			try
 			{
-				var response = await client.PostAsync("http://localhost:5004/api/payments", null);
+				var response = await client.PostAsync("https://localhost:5004/api/payment/pay", null);
 
 				if(response.IsSuccessStatusCode)
 				{

@@ -3,10 +3,10 @@
 namespace BookStore.Payment.Controllers
 {
 	[ApiController]
-	[Route("api/payments")]
+	[Route("api/payment")]
 	public class PaymentController : ControllerBase
 	{
-		[HttpPost]
+		[HttpPost("pay")]
 		public IActionResult MakePayment()
 		{
 			return Ok(new
