@@ -1,0 +1,117 @@
+﻿@page "/payment"
+@rendermode InteractiveServer
+
+@inject HttpClient Http
+
+<h3 class="mb-3">Payment Service</h3>
+
+@if (!isProcessing)
+{
+    <button class="btn btn-primary"
+            @onclick="StartPayment">
+        Start Pay
+    </button>
+}
+else
+{
+    <div class="alert alert-warning">
+        Payment Processing...
+    </div>
+
+    <div class="spinner-border text-primary mb-3"></div>
+
+    <br />
+
+    <button class="btn btn-success me-2"
+            @onclick="PayNow">
+        Pay
+    </button>
+
+    <button class="btn btn-danger"
+            @onclick="CancelPayment">
+        Cancel Payment
+    </button>
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-info mt-3">
+        @message
+    </div>
+}
+
+@code {
+
+    private bool isProcessing = false;
+
+    private string? message;
+
+    private CancellationTokenSource? tokenSource;
+
+    private async Task StartPayment()
+    {
+        isProcessing = true;
+
+        message = "Payment Started";
+
+        await Http.PostAsync(
+            "http://localhost:5004/api/payment/start",
+            null);
+
+        await Http.PostAsync(
+            "https://localhost:5005/api/orders/processing",
+            null);
+
+        tokenSource = new CancellationTokenSource();
+
+        _ = AutoCancel(tokenSource.Token);
+    }
+
+    private async Task AutoCancel(CancellationToken token)
+    {
+        try
+        {
+            await Task.Delay(15000, token);
+
+            await CancelPayment();
+        }
+        catch
+        {
+
+        }
+    }
+
+    private async Task PayNow()
+    {
+        tokenSource?.Cancel();
+
+        await Http.PostAsync(
+            "http://localhost:5004/api/payment/success",
+            null);
+
+        await Http.PostAsync(
+            "https://localhost:5005/api/orders/success",
+            null);
+
+        message = "Payment Successful";
+
+        isProcessing = false;
+    }
+
+    private async Task CancelPayment()
+    {
+        tokenSource?.Cancel();
+
+        await Http.PostAsync(
+            "http://localhost:5004/api/payment/cancel",
+            null);
+
+        await Http.PostAsync(
+            "https://localhost:5005/api/orders/cancel",
+            null);
+
+        message = "Payment Cancelled";
+
+        isProcessing = false;
+    }
+}

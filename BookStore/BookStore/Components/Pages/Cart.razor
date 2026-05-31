@@ -1,0 +1,96 @@
+﻿@page "/cart"
+@rendermode InteractiveServer
+
+@using System.Net.Http.Json
+@using BookStore.Model
+
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<h3 class="mb-3">Shopping Cart</h3>
+
+@if (cartItems.Count == 0)
+{
+    <div class="alert alert-warning">
+        Cart is empty
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+
+        <thead class="table-dark">
+            <tr>
+                <th>Id</th>
+                <th>Book</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var item in cartItems)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Title</td>
+                    <td>₹@item.Price</td>
+
+                    <td>
+                        <button class="btn btn-danger btn-sm"
+                                @onclick="() => RemoveBook(item.Id)">
+                            Remove
+                        </button>
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+    <h5>Total : ₹@TotalPrice</h5>
+
+    <button class="btn btn-success mt-2"
+            @onclick="ProceedToPayment">
+        Proceed To Pay
+    </button>
+}
+
+@code {
+
+    private List<CartItem> cartItems = new();
+
+    private decimal TotalPrice =>
+        cartItems.Sum(x => x.Price);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCart();
+    }
+
+    private async Task LoadCart()
+    {
+        var result = await Http.GetFromJsonAsync<List<CartItem>>(
+            "https://localhost:5003/api/cart/showCart");
+
+        if (result != null)
+        {
+            cartItems = result;
+        }
+    }
+
+    private async Task RemoveBook(int id)
+    {
+        await Http.DeleteAsync(
+            $"https://localhost:5003/api/cart/remove/{id}");
+
+        await LoadCart();
+    }
+
+    private void ProceedToPayment()
+    {
+        Navigation.NavigateTo("/payment");
+    }
+}

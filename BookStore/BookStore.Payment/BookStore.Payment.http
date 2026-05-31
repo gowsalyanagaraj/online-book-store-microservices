@@ -1,6 +1,0 @@
-@BookStore.Payment_HostAddress = http://localhost:5222
-
-GET {{BookStore.Payment_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

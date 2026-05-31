@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Microsoft.AspNetCore.Mvc;
 using BookStore.Cart.Models;
 
 namespace BookStore.Cart.Controllers
@@ -26,10 +27,10 @@ namespace BookStore.Cart.Controllers
             });
         }
 
-        [HttpDelete("remove/{bookId}")]
-        public IActionResult RemoveFromCart(int bookId)
+        [HttpDelete("remove/{id}")]
+        public IActionResult RemoveFromCart(int id)
         {
-            var item = cart.FirstOrDefault(x => x.BookId == bookId);
+            var item = cart.FirstOrDefault(x => x.Id == id);
 
             if (item == null)
                 return NotFound();

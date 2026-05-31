@@ -1,0 +1,100 @@
+﻿@page "/"
+@rendermode InteractiveServer
+
+@using System.Net.Http.Json
+@using BookStore.Model
+
+@inject HttpClient Http
+
+<h3 class="mb-3">Book Store</h3>
+
+@if (books == null || books.Count == 0)
+{
+    <p>Loading books...</p>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+
+        <thead class="table-dark">
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var book in books)
+            {
+                <tr>
+                    <td>@book.Id</td>
+                    <td>@book.Title</td>
+                    <td>₹@book.Price</td>
+                    <td>@book.Stock</td>
+
+                    <td>
+                        <button class="btn btn-primary btn-sm"
+                                @onclick="() => AddToCart(book)">
+                            Add To Cart
+                        </button>
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-success mt-3">
+        @message
+    </div>
+}
+
+@code {
+
+    private List<BookInfo> books = new();
+
+    private string? message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Http.GetFromJsonAsync<List<BookInfo>>(
+            "http://localhost:5002/api/books/displayall");
+
+        if (result != null)
+        {
+            books = result;
+        }
+    }
+
+    private async Task AddToCart(BookInfo book)
+    {
+        var cartItem = new CartItem
+        {
+            Id = book.Id,
+            Title = book.Title,
+            Price = book.Price,
+            Stock = book.Stock
+        };
+
+        var response = await Http.PostAsJsonAsync(
+            "https://localhost:5003/api/cart/add",
+            cartItem);
+
+        if (response.IsSuccessStatusCode)
+        {
+            message = $"{book.Title} added to cart";
+        }
+        else
+        {
+            message = "Failed to add book to cart";
+        }
+    }
+}

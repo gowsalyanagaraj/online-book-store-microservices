@@ -1,0 +1,69 @@
+﻿@page "/order"
+@rendermode InteractiveServer
+
+@using System.Net.Http.Json
+
+@inject HttpClient Http
+
+<h3 class="mb-3">Order Service</h3>
+
+<div class="alert alert-info">
+    Current Status : @orderStatus
+</div>
+
+<button class="btn btn-secondary mt-2"
+        @onclick="RefreshData">
+    Refresh Status
+</button>
+
+@code {
+
+    private string orderStatus = "No Order";
+
+    private List<OrderItem> orders = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshData();
+    }
+
+    private async Task RefreshData()
+    {
+        try
+        {
+            var statusResult =
+                await Http.GetFromJsonAsync<OrderStatus>(
+                    "https://localhost:5005/api/orders/status");
+
+            if (statusResult != null)
+            {
+                orderStatus = statusResult.Status;
+            }
+
+            var orderResult =
+                await Http.GetFromJsonAsync<List<OrderItem>>(
+                    "https://localhost:5005/api/orders/all");
+
+            if (orderResult != null)
+            {
+                orders = orderResult;
+            }
+        }
+        catch
+        {
+            orderStatus = "Order Service Unavailable";
+        }
+    }
+
+    public class OrderStatus
+    {
+        public string Status { get; set; } = "";
+    }
+
+    public class OrderItem
+    {
+        public int Id { get; set; }
+
+        public string Status { get; set; } = "";
+    }
+}
