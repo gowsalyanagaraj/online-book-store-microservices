@@ -1,6 +1,7 @@
 ﻿
+using BookStore.Cart.Domain.Interfaces;
+using BookStore.Cart.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
-using BookStore.Cart.Models;
 
 namespace BookStore.Cart.Controllers
 {
@@ -8,39 +9,35 @@ namespace BookStore.Cart.Controllers
     [Route("api/cart")]
     public class CartController : ControllerBase
     {
-        private static readonly List<CartItem> cart = new();
+        private readonly ICartService _service;
 
-        [HttpGet("showCart")]
-        public IActionResult GetCart()
+        public CartController(ICartService service)
         {
-            return Ok(cart);
+            _service = service;
+        }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> GetCart()
+        {
+            var items = await _service.GetCartItemsAsync();
+
+            return Ok(items);
         }
 
         [HttpPost("add")]
-        public IActionResult AddToCart([FromBody] CartItem item)
+        public async Task<IActionResult> AddToCart(CartItem item)
         {
-            cart.Add(item);
+            await _service.AddToCartAsync(item);
 
-            return Ok(new
-            {
-                Message = "Book added to cart"
-            });
+            return Ok();
         }
 
         [HttpDelete("remove/{id}")]
-        public IActionResult RemoveFromCart(int id)
+        public async Task<IActionResult> RemoveFromCart(int id)
         {
-            var item = cart.FirstOrDefault(x => x.Id == id);
+            await _service.RemoveFromCartAsync(id);
 
-            if (item == null)
-                return NotFound();
-
-            cart.Remove(item);
-
-            return Ok(new
-            {
-                Message = "Book removed from cart"
-            });
+            return Ok();
         }
     }
 }

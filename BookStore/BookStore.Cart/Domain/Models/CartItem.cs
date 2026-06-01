@@ -1,7 +1,10 @@
-﻿namespace BookStore.Books.Models
+﻿namespace BookStore.Cart.Domain.Models
 {
-    public class BookInfo
+    public class CartItem
     {
+        
+  
+       
         public int Id { get; set; }
         public string? Title { get; set; }
         public decimal Price { get; set; }

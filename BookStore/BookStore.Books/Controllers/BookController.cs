@@ -1,37 +1,34 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using BookStore.Books.Models;
+﻿using BookStore.Books.Domain.Interface;
+using BookStore.Books.Domain.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BookStore.Books.Controllers
 {
     [ApiController]
-    [Route("api/books")]
-    public class BookController : ControllerBase
+    [Route("api/[controller]")]
+    public class BooksController : ControllerBase
     {
-        private static readonly List<BookInfo> books = new()
+        private readonly IBookService _service;
+
+        public BooksController(IBookService service)
         {
-            new BookInfo { Id = 1, Title = "The Silent Patient", Price = 500, Stock = 10 },
-            new BookInfo { Id = 2, Title = "The Housemaid", Price = 600, Stock = 5 },
-            new BookInfo { Id = 3, Title = "Can We Be Strangers Again?", Price = 300, Stock = 15 },
-            new BookInfo { Id = 4, Title = "The Love Hypothesis", Price = 300, Stock = 10 }, 
-            new BookInfo { Id = 5, Title = "Twisted Love", Price = 500, Stock = 15 }, 
-            new BookInfo { Id = 6, Title = "The Thursday Murder Club", Price = 400, Stock = 5 }
-        };
+            _service = service;
+        }
 
         [HttpGet("displayall")]
-        public IActionResult GetBooks()
+        public async Task<IActionResult> GetBooks()
         {
+            var books = await _service.GetBooksAsync();
+
             return Ok(books);
         }
 
-        [HttpGet("search/{id}")]
-        public IActionResult GetBook(int id)
+        [HttpPost("add")]
+        public async Task<IActionResult> AddBook(BookInfo book)
         {
-            var book = books.FirstOrDefault(x => x.Id == id);
+            await _service.AddBookAsync(book);
 
-            if (book == null)
-                return NotFound();
-
-            return Ok(book);
+            return Ok();
         }
     }
 }
